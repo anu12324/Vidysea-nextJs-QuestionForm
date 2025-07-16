@@ -2,21 +2,21 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const pool = require('./db');
-const app = express();
 const path = require('path');
+const app = express();
 
 // Middleware
 app.use(cors());
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
+console.log(`Storage value : ${storage}`);
 const upload = multer({ storage });
 
 // Fetch Sections
@@ -41,8 +41,7 @@ app.get("/api/subsection", (req, res) => {
 app.post('/api/question', upload.any(), async (req, res) => {
     try {
         const { section_id, subsection_id, question_text, type } = req.body;
-        // console.log("Incoming body:", req.body);
-
+        console.log("Incoming body:", req.body);
 
         const questionRes = await pool.query(
             `INSERT INTO questions (section_id, subsection_id, question_text, option_type) 
@@ -54,17 +53,17 @@ app.post('/api/question', upload.any(), async (req, res) => {
 
         // Map file fieldnames to filenames
         const filesMap = {};
-        for (const file of req.files) {
+        req.files.forEach(file => {
             filesMap[file.fieldname] = file.filename;
-        }
+        });
 
         // Extract and insert options
         const options = [];
         let i = 0;
-        while (req.body[`options[${i}][text]`]) {
+        while (req.body[`options[${i}][text]`] !== undefined) {
             options.push({
                 text: req.body[`options[${i}][text]`],
-                marks: parseInt(req.body[`options[${i}][marks]`]) || 0,
+                marks: parseInt(req.body[`options[${i}][marks]`] || '0'),
                 image: filesMap[`options[${i}][image]`] || null
             });
             i++;
@@ -73,7 +72,7 @@ app.post('/api/question', upload.any(), async (req, res) => {
         console.log("Extracted options:", options);
         for (const opt of options) {
             await pool.query(
-                `INSERT INTO options (question_id, text, marks, image) VALUES ($1, $2, $3, $4)`,
+                `INSERT INTO options (question_id, text, marks, image_path) VALUES ($1, $2, $3, $4)`,
                 [question_id, opt.text, opt.marks, opt.image]
             );
         }

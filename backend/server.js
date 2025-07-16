@@ -33,15 +33,6 @@ app.get("/api/subsection", (req, res) => {
     });
 });
 
-// Fetching Subsections
-// app.get("/api/subsection/:section_id", (req, res) => {
-//     const { sectionId } = req.params.section_id;
-//     pool.query("SELECT * FROM subsections WHERE section_id = $1", [sectionId], (err, result) => {
-//         if (err) return res.status(500).json({ error: err.message });
-//         res.json(result.rows);
-//     });
-// });
-
 
 // Submit Question with Options
 app.post('/api/question', upload.any(), async (req, res) => {
@@ -51,8 +42,8 @@ app.post('/api/question', upload.any(), async (req, res) => {
 
 
         const questionRes = await pool.query(
-            `INSERT INTO questions (section_id, subsection_id, question_text, type) 
-             VALUES ($1, $2, $3, $4) RETURNING id`,
+            `INSERT INTO questions (section_id, subsection_id, question_text, option_type) 
+            VALUES ($1, $2, $3, $4) RETURNING id`,
             [section_id, subsection_id, question_text, type]
         );
 
@@ -85,10 +76,10 @@ app.post('/api/question', upload.any(), async (req, res) => {
 
         res.status(201).json({ message: "Question and options saved successfully." });
     } catch (error) {
-        console.error("🔥 Error saving question:", error);
+        console.error("Error saving question:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
 
 // Server Listening
-app.listen(8000, () => console.log("✅ Server running on http://localhost:8000"));
+app.listen(8000, () => console.log("Server running on http://localhost:8000"));

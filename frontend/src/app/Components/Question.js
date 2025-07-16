@@ -21,7 +21,6 @@ export default function CreateQuestion() {
 
     useEffect(() => {
         if (formData.section_id) {
-            // axios.get(`http://localhost:8000/api/subsection/${formData.section_id}`)
             axios.get(`http://localhost:8000/api/subsection?section_id=${formData.section_id}`)
                 .then(res => setSubSections(res.data));
         }
@@ -104,8 +103,8 @@ export default function CreateQuestion() {
             <div className="mb-3">
                 <label className="form-label">Single / Multi Option</label>
                 <select className="form-select" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
-                    <option value="single">Single</option>
-                    <option value="multi">Multi</option>
+                    <option value="SINGLE">Single</option>
+                    <option value="MULTI">Multi</option>
                 </select>
             </div>
 

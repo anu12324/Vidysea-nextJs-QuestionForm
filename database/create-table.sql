@@ -5,7 +5,7 @@ CREATE TABLE sections(
 ); 
 
 -- FETCH QUERY FRO SECTIONS
-SELECT * from sections
+SELECT * FROM sections
 
 CREATE TABLE subsections (
   id SERIAL PRIMARY KEY,
@@ -32,5 +32,3 @@ CREATE TABLE options (
   marks INTEGER,
   image_path TEXT
 );
-
-ALTER TABLE questions ADD COLUMN type VARCHAR(50);

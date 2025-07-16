@@ -21,6 +21,7 @@ export default function CreateQuestion() {
 
     useEffect(() => {
         if (formData.section_id) {
+
             axios.get(`http://localhost:8000/api/subsection?section_id=${formData.section_id}`)
                 .then(res => setSubSections(res.data));
         }
@@ -139,11 +140,10 @@ export default function CreateQuestion() {
                         </div>
                     </div>
                 ))}
-                {formData.type === 'multi' && (
+                {formData.type === 'MULTI' && (
                     <Button type="button" variant="outline-primary" onClick={addOption}>Add More Option</Button>
                 )}
             </div>
-
             <div className="text-center">
                 <Button type="submit" variant="outline-success">Save</Button>
             </div>

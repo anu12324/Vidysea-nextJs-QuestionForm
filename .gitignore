@@ -1,0 +1,11 @@
+# Node.js (backend)
+backend/node_modules/
+
+# Next.js (frontend)
+frontend/node_modules/
+frontend/.next/
+
+# General
+.env
+.DS_Store
+uploads/

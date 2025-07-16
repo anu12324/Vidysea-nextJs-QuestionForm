@@ -9,6 +9,9 @@ const path = require('path');
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 // Multer Storage Configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -67,6 +70,7 @@ app.post('/api/question', upload.any(), async (req, res) => {
             i++;
         }
 
+        console.log("Extracted options:", options);
         for (const opt of options) {
             await pool.query(
                 `INSERT INTO options (question_id, text, marks, image) VALUES ($1, $2, $3, $4)`,

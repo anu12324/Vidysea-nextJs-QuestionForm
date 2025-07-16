@@ -11,7 +11,7 @@ export default function CreateQuestion() {
         section_id: '',
         subsection_id: '',
         question_text: '',
-        type: 'single',
+        type: 'SINGLE',
         options: [{ text: '', marks: 0, image: null }]
     });
 
@@ -63,13 +63,17 @@ export default function CreateQuestion() {
             }
         });
 
+        for (var pair of formDataToSend.entries()) {
+            console.log(pair[0] + ', ' + pair[1]);
+        }
+
         try {
             await axios.post('http://localhost:8000/api/question', formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            alert('Saved!');
+            alert('Question And Answer Saved Successfully!');
         } catch (error) {
             console.error('Submission error:', error);
             alert('Error saving question');

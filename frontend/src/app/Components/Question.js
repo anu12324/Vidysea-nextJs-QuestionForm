@@ -16,13 +16,13 @@ export default function CreateQuestion() {
     });
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/section').then(res => setSections(res.data));
+        axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/section`).then(res => setSections(res.data));
     }, []);
 
     useEffect(() => {
         if (formData.section_id) {
 
-            axios.get(`http://localhost:8000/api/subsection?section_id=${formData.section_id}`)
+            axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/subsection?section_id=${formData.section_id}`)
                 .then(res => setSubSections(res.data));
         }
     }, [formData.section_id]);
@@ -68,12 +68,19 @@ export default function CreateQuestion() {
         }
 
         try {
-            await axios.post('http://localhost:8000/api/question', formDataToSend, {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/question`, formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             alert('Question And Answer Saved Successfully!');
+            setFormData({
+                section_id: '',
+                subsection_id: '',
+                question_text: '',
+                type: 'SINGLE',
+                options: [{ text: '', marks: 0, image: null }]
+            });
         } catch (error) {
             console.error('Submission error:', error);
             alert('Error saving question');

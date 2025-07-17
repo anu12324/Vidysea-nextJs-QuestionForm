@@ -16,7 +16,6 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
-console.log(`Storage value : ${storage}`);
 const upload = multer({ storage });
 
 // Fetch Sections
@@ -40,8 +39,8 @@ app.get("/api/subsection", (req, res) => {
 // Submit Question with Options
 app.post('/api/question', upload.any(), async (req, res) => {
     try {
-        const { section_id, subsection_id, question_text, type } = req.body;
-        console.log("Incoming body:", req.body);
+        const { section_id, subsection_id, question_text, type, options } = req.body;
+        // console.log("Incoming body:", req.body);
 
         const questionRes = await pool.query(
             `INSERT INTO questions (section_id, subsection_id, question_text, option_type) 
@@ -58,10 +57,10 @@ app.post('/api/question', upload.any(), async (req, res) => {
         });
 
         // Extract and insert options
-        const options = [];
+        const LocOptions = [];
         let i = 0;
         while (req.body[`options[${i}][text]`] !== undefined) {
-            options.push({
+            LocOptions.push({
                 text: req.body[`options[${i}][text]`],
                 marks: parseInt(req.body[`options[${i}][marks]`] || '0'),
                 image: filesMap[`options[${i}][image]`] || null
@@ -69,11 +68,11 @@ app.post('/api/question', upload.any(), async (req, res) => {
             i++;
         }
 
-        console.log("Extracted options:", options);
+        let j = 0;
         for (const opt of options) {
             await pool.query(
                 `INSERT INTO options (question_id, text, marks, image_path) VALUES ($1, $2, $3, $4)`,
-                [question_id, opt.text, opt.marks, opt.image]
+                [question_id, opt.text, opt.marks, req.files[j].filename]
             );
         }
 

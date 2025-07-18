@@ -74,6 +74,13 @@ export default function CreateQuestion() {
                 }
             });
             alert('Question And Answer Saved Successfully!');
+            setFormData({
+                section_id: '',
+                subsection_id: '',
+                question_text: '',
+                type: 'SINGLE',
+                options: [{ text: '', marks: 0, image: null }]
+            });
         } catch (error) {
             console.error('Submission error:', error);
             alert('Error saving question');

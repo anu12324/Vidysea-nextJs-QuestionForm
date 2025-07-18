@@ -62,11 +62,9 @@ export default function CreateQuestion() {
                 formDataToSend.append(`options[${i}][image]`, opt.image);
             }
         });
-
         for (var pair of formDataToSend.entries()) {
             console.log(pair[0] + ', ' + pair[1]);
         }
-
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/question`, formDataToSend, {
                 headers: {
@@ -74,13 +72,6 @@ export default function CreateQuestion() {
                 }
             });
             alert('Question And Answer Saved Successfully!');
-            setFormData({
-                section_id: '',
-                subsection_id: '',
-                question_text: '',
-                type: 'SINGLE',
-                options: [{ text: '', marks: 0, image: null }]
-            });
         } catch (error) {
             console.error('Submission error:', error);
             alert('Error saving question');

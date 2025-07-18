@@ -39,7 +39,7 @@ app.get("/api/subsection", (req, res) => {
 // Submit Question with Options
 app.post('/api/question', upload.any(), async (req, res) => {
     try {
-        const { section_id, subsection_id, question_text, type, options } = req.body;
+        const { section_id, subsection_id, question_text, type } = req.body;
         // console.log("Incoming body:", req.body);
 
         const questionRes = await pool.query(

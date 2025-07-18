@@ -62,9 +62,11 @@ export default function CreateQuestion() {
                 formDataToSend.append(`options[${i}][image]`, opt.image);
             }
         });
+
         for (var pair of formDataToSend.entries()) {
             console.log(pair[0] + ', ' + pair[1]);
         }
+
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/question`, formDataToSend, {
                 headers: {
@@ -80,7 +82,7 @@ export default function CreateQuestion() {
 
     return (
         <form onSubmit={handleSubmit} className="container mt-4 p-4 bg-light border rounded">
-            <h3 className="text-center">Create Questions</h3>
+            <h3 className="text-center bg-success">Create Questions</h3>
             <hr />
             <div className="mb-3">
                 <label className="form-label">Select Section</label>

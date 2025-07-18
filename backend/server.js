@@ -69,7 +69,7 @@ app.post('/api/question', upload.any(), async (req, res) => {
         }
 
         let j = 0;
-        for (const opt of options) {
+        for (const opt of LocOptions) {
             await pool.query(
                 `INSERT INTO options (question_id, text, marks, image_path) VALUES ($1, $2, $3, $4)`,
                 [question_id, opt.text, opt.marks, req.files[j].filename]

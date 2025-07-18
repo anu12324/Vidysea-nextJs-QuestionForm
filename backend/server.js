@@ -68,11 +68,19 @@ app.post('/api/question', upload.any(), async (req, res) => {
             i++;
         }
 
-        let j = 0;
-        for (const opt of LocOptions) {
+        // let j = 0;
+        // for (const opt of LocOptions) {
+        //     await pool.query(
+        //         `INSERT INTO options (question_id, text, marks, image_path) VALUES ($1, $2, $3, $4)`,
+        //         [question_id, opt.text, opt.marks, req.files[j].filename]
+        //     );
+        // }
+
+        for (let i = 0; i < LocOptions.length; i++) {
+            const opt = LocOptions[i];
             await pool.query(
                 `INSERT INTO options (question_id, text, marks, image_path) VALUES ($1, $2, $3, $4)`,
-                [question_id, opt.text, opt.marks, req.files[j].filename]
+                [question_id, opt.text, opt.marks, opt.image]
             );
         }
 

@@ -51,7 +51,6 @@ app.post('/api/question', upload.any(), async (req, res) => {
         const question_id = questionRes.rows[0].id;
 
         // Map file fieldnames to filenames
-        console.log("Files map:", filesMap);
         const filesMap = {};
         req.files.forEach(file => {
             filesMap[file.fieldname] = file.filename;

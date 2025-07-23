@@ -1,8 +1,10 @@
 'use client';
 
-import { Button } from "react-bootstrap";
+import { Button, Table, Row, Col, Form, Container } from "react-bootstrap";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function CreateQuestion() {
     const [formDetails, setFormDetails] = useState([]);
@@ -16,10 +18,10 @@ export default function CreateQuestion() {
         options: [{ text: '', marks: 0, image: null }]
     });
     const [showAddNewForm, setShowAddNewForm] = useState(false);
+    const [isView, setIsView] = useState(false);
 
     useEffect(() => {
         axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/section`).then(res => setSections(res.data));
-        console.log(`The form Details is ${formDetails}`);
         getDetails();
     }, []);
 
@@ -35,7 +37,6 @@ export default function CreateQuestion() {
         axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/getdetails`)
             .then((res) => {
                 setFormDetails(res.data);
-                console.log("The Get details data is", res.data);
             })
             .catch(err => {
                 console.error("Error fetching details:", err);
@@ -103,121 +104,149 @@ export default function CreateQuestion() {
         }
     };
 
+    const handleBack = () => {
+        setShowAddNewForm(false);
+    }
+
+    const handleView = (res) => {
+        setIsView(true);
+    }
+
     return (
         <>
-            {
-                !showAddNewForm ?
-                    <>
-                        <div>
-                            <div>
-                                <Button variant="outline-primary" size="sm" onClick={() => setShowAddNewForm(true)}>Add New</Button>
-                            </div>
-                            <table border="1">
-                                <thead>
-                                    <tr>
-                                        <th>Srno</th>
-                                        <th>Section Name</th>
-                                        <th>Sub-Section Name</th>
-                                        <th>Questions</th>
-                                        <th>Option Type</th>
-                                        <th>Option Text</th>
-                                        <th>Option Marks</th>
-                                        <th>Option Image</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {
-                                        formDetails.map((res, idx) => (
-                                            <tr key={idx}>
-                                                <td>{res.id}</td>
-                                                <td>{res.section_name}</td>
-                                                <td>{res.subsection_name}</td>
-                                                <td>{res.question_text}</td>
-                                                <td>{res.option_type}</td>
-                                                <td>{res.option_text}</td>
-                                                <td>{res.option_marks}</td>
-                                                <td>{res.option_path}</td>
-                                            </tr>
-                                        ))
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </> :
-                    <>
-                        <form onSubmit={handleSubmit} className="container mt-4 p-4 bg-light border rounded">
-                            <h3 className="text-center bg-success">Create Questions</h3>
-                            <hr />
-                            <div className="mb-3">
-                                <label className="form-label">Select Section</label>
-                                <select className="form-select" onChange={e => setFormData({ ...formData, section_id: e.target.value })}>
-                                    <option value="">Select</option>
-                                    {sections.map(sec => <option key={sec.id} value={sec.id}>{sec.name}</option>)}
-                                </select>
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Select Sub Section</label>
-                                <select className="form-select" onChange={e => setFormData({ ...formData, subsection_id: e.target.value })}>
-                                    <option value="">Select</option>
-                                    {subSections.map(sub => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
-                                </select>
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Type Question</label>
-                                <input type="text" className="form-control" onChange={e => setFormData({ ...formData, question_text: e.target.value })} />
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Single / Multi Option</label>
-                                <select className="form-select" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
-                                    <option value="SINGLE">Single</option>
-                                    <option value="MULTI">Multi</option>
-                                </select>
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Options:</label>
-                                {formData.options.map((opt, index) => (
-                                    <div key={index} className="row g-2 mb-2">
-                                        <div className="col-md-4">
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="Option text"
-                                                value={opt.text}
-                                                onChange={e => handleOptionChange(index, 'text', e.target.value)}
-                                            />
+            <Container>
+                {
+                    !showAddNewForm ?
+                        <>
+                            <Row className="text-center bg-info mt-5">
+                                <h3>Question form Details</h3>
+                            </Row>
+                            <Row>&nbsp;</Row>
+                            <Row>
+                                <Col>
+                                    <Button variant="outline-primary" size="sm" onClick={() => setShowAddNewForm(true)}>Add New</Button>
+                                </Col>
+                            </Row>
+                            <Row>&nbsp;</Row>
+                            <Row>
+                                <Table bordered striped>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Srno</th>
+                                            <th>Section Name</th>
+                                            <th>Sub-Section Name</th>
+                                            <th>Questions</th>
+                                            <th>Option Type</th>
+                                            {/* <th>Option Text</th>
+                                            <th>Option Marks</th>
+                                            <th>Option Image</th> */}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            formDetails.map((res, idx) => (
+                                                <tr key={idx}>
+                                                    <td>
+                                                        <span style={{ cursor: 'pointer' }} onClick={() => handleView(res)}>
+                                                            <FontAwesomeIcon icon={faEye} />
+                                                        </span>
+                                                    </td>
+                                                    <td>{res.id}</td>
+                                                    <td>{res.section_name}</td>
+                                                    <td>{res.subsection_name}</td>
+                                                    <td>{res.question_text}</td>
+                                                    <td>{res.option_type}</td>
+                                                    {/* <td>{res.option_text}</td>
+                                                    <td>{res.option_marks}</td>
+                                                    <td>{res.option_path}</td> */}
+                                                </tr>
+                                            ))
+                                        }
+                                    </tbody>
+                                </Table>
+                            </Row>
+                        </> :
+                        <>
+                            <Form onSubmit={handleSubmit} className="container mt-4 p-4 bg-light border rounded">
+                                <h3 className="text-center bg-info">Create Questions</h3>
+                                <hr />
+                                <Row>
+                                    <Col className="col-md-5">
+                                        <label className="form-label">Select Section</label>
+                                        <select className="form-select" onChange={e => setFormData({ ...formData, section_id: e.target.value })}>
+                                            <option value="">Select</option>
+                                            {sections.map(sec => <option key={sec.id} value={sec.id}>{sec.name}</option>)}
+                                        </select>
+                                    </Col>
+                                    <Col className="col-md-5">
+                                        <label className="form-label">Select Sub Section</label>
+                                        <select className="form-select" onChange={e => setFormData({ ...formData, subsection_id: e.target.value })}>
+                                            <option value="">Select</option>
+                                            {subSections.map(sub => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
+                                        </select>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col className="col-md-5">
+                                        <label className="form-label">Type Question</label>
+                                        <input type="text" className="form-control" onChange={e => setFormData({ ...formData, question_text: e.target.value })} />
+                                    </Col>
+                                    <Col className="col-md-5">
+                                        <label className="form-label">Single / Multi Option</label>
+                                        <select className="form-select" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
+                                            <option value="SINGLE">Single</option>
+                                            <option value="MULTI">Multi</option>
+                                        </select>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <label className="form-label">Options:</label>
+                                    {formData.options.map((opt, index) => (
+                                        <div key={index} className="row g-2 mb-2">
+                                            <div className="col-md-3">
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="Option text"
+                                                    value={opt.text}
+                                                    onChange={e => handleOptionChange(index, 'text', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-md-3">
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    placeholder="Marks"
+                                                    value={opt.marks}
+                                                    onChange={e => handleOptionChange(index, 'marks', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-md-4">
+                                                <input
+                                                    type="file"
+                                                    className="form-control"
+                                                    onChange={e => handleFileChange(index, e.target.files[0])}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="col-md-3">
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                placeholder="Marks"
-                                                value={opt.marks}
-                                                onChange={e => handleOptionChange(index, 'marks', e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="col-md-5">
-                                            <input
-                                                type="file"
-                                                className="form-control"
-                                                onChange={e => handleFileChange(index, e.target.files[0])}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                                {formData.type === 'MULTI' && (
-                                    <Button type="button" variant="outline-primary" onClick={addOption}>Add More Option</Button>
-                                )}
-                            </div>
-                            <div className="text-center">
-                                <Button type="submit" variant="outline-success">Save</Button>
-                            </div>
-                        </form>
-                    </>
-            }
+                                    ))}
+                                </Row>
+                                <Row className="text-center">
+                                    <Col>
+                                        {formData.type === 'MULTI' && (
+                                            <Button type="button" variant="outline-primary" size="sm" onClick={addOption}>Add More Options</Button>
+                                        )}
+                                        &nbsp;
+                                        <Button type="submit" variant="outline-success" size="sm">Save</Button>
+                                        &nbsp;
+                                        <Button variant="outline-danger" size="sm" onClick={handleBack}>Back</Button>
+                                    </Col>
+                                </Row>
+                            </Form>
+                        </>
+                }
+            </Container>
         </>
     );
 }

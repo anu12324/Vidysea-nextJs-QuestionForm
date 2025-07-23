@@ -17,6 +17,19 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Fetch form Details === 
+app.get(`/api/getdetails`, (req, res) => {
+    const fetchQuery = `SELECT qus.id AS id, sec.name AS section_name, sbSec.name AS subsection_name, question_text, option_type, opt.text AS option_text, opt.marks AS option_marks, opt.image_path AS option_path
+    FROM questions AS qus
+    LEFT OUTER JOIN sections AS sec ON sec.id = qus.section_id
+    LEFT OUTER JOIN subsections AS sbSec ON sbSec.id = qus.subsection_id
+    LEFT OUTER JOIN options AS opt ON opt.id = qus.id`;
+    pool.query(fetchQuery, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(result.rows);
+    });
+});
+
 // Fetch Sections
 app.get("/api/section", (req, res) => {
     pool.query("SELECT * FROM sections", (err, result) => {

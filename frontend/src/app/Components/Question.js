@@ -19,6 +19,7 @@ export default function CreateQuestion() {
     });
     const [showAddNewForm, setShowAddNewForm] = useState(false);
     const [isView, setIsView] = useState(false);
+    const [optionsData, setOptionsData] = useState([]);
 
     useEffect(() => {
         axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/section`).then(res => setSections(res.data));
@@ -110,6 +111,16 @@ export default function CreateQuestion() {
 
     const handleView = (res) => {
         setIsView(true);
+        const questionId = res.question_id;
+        axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/getOptionsData/${questionId}`)
+            .then((res) => {
+                setOptionsData(res.data);
+                setIsView(true);
+                console.log(`View Data is ${JSON.stringify(res.data)}`);
+            })
+            .catch(err => {
+                console.error(`Error Fetching Options :${err}`);
+            });
     }
 
     return (
@@ -232,6 +243,44 @@ export default function CreateQuestion() {
                                         </div>
                                     ))}
                                 </Row>
+                                {
+                                    isView &&
+                                    <>
+
+                                        <Row>
+                                            <Table bordered striped>
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Srno</th>
+                                                        <th>Section Name</th>
+                                                        <th>Sub-Section Name</th>
+                                                        <th>Questions</th>
+                                                        <th>Option Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {
+                                                        formDetails.map((res, idx) => (
+                                                            <tr key={idx}>
+                                                                <td>
+                                                                    <span style={{ cursor: 'pointer' }} onClick={() => handleView(res)}>
+                                                                        <FontAwesomeIcon icon={faEye} />
+                                                                    </span>
+                                                                </td>
+                                                                <td>{res.id}</td>
+                                                                <td>{res.section_name}</td>
+                                                                <td>{res.subsection_name}</td>
+                                                                <td>{res.question_text}</td>
+                                                                <td>{res.option_type}</td>
+                                                            </tr>
+                                                        ))
+                                                    }
+                                                </tbody>
+                                            </Table>
+                                        </Row>
+                                    </>
+                                }
                                 <Row className="text-center">
                                     <Col>
                                         {formData.type === 'MULTI' && (

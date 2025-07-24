@@ -9,7 +9,6 @@ const app = express();
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
 // Multer Storage Configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -19,24 +18,55 @@ const upload = multer({ storage });
 
 // Fetch form Details === 
 app.get(`/api/getdetails`, (req, res) => {
-    const fetchQuery = `SELECT qus.id AS id, sec.name AS section_name, sbSec.name AS subsection_name, question_text, option_type, opt.text AS option_text, opt.marks AS option_marks, opt.image_path AS option_path, question_id
+    const fetchQuery = `SELECT qus.id AS id, sec.name AS section_name, sbSec.name AS subsection_name, question_text, option_type, opt.text AS option_text, opt.marks AS option_marks, opt.image_path AS option_path
     FROM questions AS qus
     LEFT OUTER JOIN sections AS sec ON sec.id = qus.section_id
     LEFT OUTER JOIN subsections AS sbSec ON sbSec.id = qus.subsection_id
-    LEFT OUTER JOIN options AS opt ON opt.id = qus.id`;
+    LEFT OUTER JOIN options AS opt ON opt.id = qus.id 
+    ORDER BY id`;
     pool.query(fetchQuery, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(result.rows);
     });
 });
 
-app.get(`/api/getOptionsData/:questionId`, (req, res) => {
+// View Form Details ============
+app.get('/api/getOptionsData/:questionId', async (req, res) => {
     const questionId = req.params.questionId;
-    pool.query("SELECT * FROM options WHERE question_id = $1", [questionId], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(result.rows);
-    });
+
+    try {
+        // Get options
+        const optionsResult = await pool.query(
+            "SELECT * FROM options WHERE question_id = $1",
+            [questionId]
+        );
+
+        // If no options found, you can still return empty
+        const options = optionsResult.rows;
+
+        // Get question details
+        const questionQuery = `
+            SELECT qus.id AS id, sec.name AS section_name, sub.name AS subsection_name, 
+                qus.question_text AS question_text, qus.option_type AS option_type
+            FROM questions AS qus
+            LEFT JOIN sections AS sec ON sec.id = qus.section_id
+            LEFT JOIN subsections AS sub ON sub.id = qus.subsection_id
+            WHERE qus.id = $1
+        `;
+        const questionResult = await pool.query(questionQuery, [questionId]);
+        const question = questionResult.rows[0];
+
+        // Combine and send
+        return res.json({
+            question,
+            options,
+        });
+
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
+
 
 // Fetch Sections
 app.get("/api/section", (req, res) => {
@@ -54,7 +84,6 @@ app.get("/api/subsection", (req, res) => {
         res.json(result.rows);
     });
 });
-
 
 // Submit Question with Options
 app.post('/api/question', upload.any(), async (req, res) => {
